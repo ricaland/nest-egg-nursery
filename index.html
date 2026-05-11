@@ -230,7 +230,6 @@ footer{
   <button class="nav-tab" onclick="switchTab('assumptions',this)">Assumptions</button>
   <button class="nav-tab" onclick="switchTab('child',this)">Individual accounts</button>
   <button class="nav-tab" onclick="switchTab('gpacct',this)">GP investment account</button>
-  <button class="nav-tab" onclick="switchTab('cashflow',this)">GP contributions</button>
   <button class="nav-tab" onclick="switchTab('chart',this)">Growth chart</button>
 </nav>
 
@@ -286,6 +285,11 @@ footer{
         <div class="field-row"><label>GP Investment Acct monthly deposit</label><input type="range" min="500" max="5000" step="100" id="sl-gpmonth" value="1000" oninput="update()"><span class="vo" id="ov-gpmonth">$1,000/mo</span></div>
         <div class="field-row"><label>Annual rate of return</label><input type="range" min="1" max="15" step="0.5" id="sl-rate" value="7" oninput="update()"><span class="vo" id="ov-rate">7.0%</span></div>
         <div class="field-row"><label>Projection years (per account)</label><input type="range" min="10" max="50" step="1" id="sl-years" value="40" oninput="update()"><span class="vo" id="ov-years">40 yrs</span></div>
+      </div>
+      <div class="field-section">
+        <div class="field-section-title">GP investment account contributions</div>
+        <div class="field-row"><label>Years GP will contribute to inv. account</label><input type="range" min="1" max="40" step="1" id="sl-gpyears" value="15" oninput="update()"><span class="vo" id="ov-gpyears">15 yrs</span></div>
+        <p style="font-size:11px;color:#6B6560;margin-top:.25rem">Deposits of $1,000/mo begin May 2028 and run for this many years, then stop. The account continues to grow and pay out matches after contributions end.</p>
       </div>
       <div class="field-section">
         <div class="field-section-title">Grandchild contributions</div>
@@ -369,10 +373,25 @@ footer{
 <div id="panel-gpacct" class="panel">
   <div class="metric-grid" id="gp-metrics"></div>
 
+  <div style="background:var(--sky-light);border:1px solid var(--sky);border-left:4px solid var(--sky);border-radius:var(--radius-sm);padding:.9rem 1.2rem;margin-bottom:1rem;display:flex;align-items:flex-start;gap:.75rem">
+    <div style="font-size:20px;line-height:1;flex-shrink:0">⏱</div>
+    <div>
+      <div style="font-weight:600;color:var(--sky);font-size:13px;margin-bottom:4px">GP contributions begin <strong>May 2028</strong> — only after all 23 grandchild accounts are initially funded</div>
+      <div style="font-size:12px;color:var(--ink)">Grandchild accounts are opened one per month from Jun 2026 through Apr 2028, each seeded with the GP initial deposit. The GP investment account receives its <em>first</em> $1,000 deposit in May 2028, once the initial funding phase is complete. Adjust "Years GP will contribute" on the Assumptions tab to model how long deposits continue.</div>
+    </div>
+  </div>
+
+  <div id="gp-yr40-callout" style="background:var(--gold-light);border:1px solid var(--gold);border-left:4px solid var(--gold);border-radius:var(--radius-sm);padding:.9rem 1.2rem;margin-bottom:1rem;display:flex;align-items:flex-start;gap:.75rem">
+    <div style="font-size:20px;line-height:1;flex-shrink:0">💡</div>
+    <div>
+      <div style="font-weight:600;color:var(--gold);font-size:13px;margin-bottom:4px">Year 40 balance — plan the next distribution</div>
+      <div style="font-size:12px;color:var(--ink)" id="gp-yr40-text">At year 40 this account may still hold a meaningful surplus beyond what was needed for the two match events. Consider earmarking it for <em>additional match rounds</em> for grandchildren who kept contributing longest, or a final lump-sum gift tied to continued participation milestones.</div>
+    </div>
+  </div>
+
   <div class="card">
     <div class="card-title">🏦 GP investment account — monthly detail</div>
     <p style="font-size:12px;color:#6B6560;margin-bottom:.75rem">
-      Funded with $1,000/month starting <strong>May 2028</strong> (after all 23 grandchild accounts are initially funded).
       Match payments draw down this account. <span style="color:var(--neg-fg);font-weight:500">Red rows indicate a negative balance — additional funding would be needed.</span>
     </p>
     <div class="legend">
@@ -399,63 +418,6 @@ footer{
   </div>
 </div>
 
-<!-- ── GP CONTRIBUTIONS / CASH FLOW ───────────────────────────────────── -->
-<div id="panel-cashflow" class="panel">
-  <div class="metric-grid" id="cf-metrics"></div>
-
-  <div class="card" style="margin-bottom:1rem">
-    <div class="card-title">💸 Section 1 — GP sourced account: initial GC deposits</div>
-    <p style="font-size:12px;color:#6B6560;margin-bottom:.75rem">
-      Shows only the months where a grandchild account is initially funded ($1,000 each, one per month Jun 2026 – Apr 2028),
-      plus the ongoing transfer into the GP Investment Account beginning May 2028.
-      The GP Investment Account funding is shown as an offsetting entry — it flows <em>into</em> that account, not out of the family.
-    </p>
-    <div class="legend">
-      <span><span class="lsq" style="background:var(--gold-light);border:1px solid #D4C07A"></span>GC initial deposit month</span>
-    </div>
-    <div class="tbl-wrap" style="max-height:340px">
-      <table>
-        <thead><tr>
-          <th class="ctr">Date</th>
-          <th>GC initial deposits out</th>
-          <th>GP inv. acct funding out</th>
-          <th>Total out</th>
-          <th>Offset: inv. acct in</th>
-          <th>Net GP sourced flow</th>
-          <th>Running total funded</th>
-        </tr></thead>
-        <tbody id="cf1-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🔄 Section 2 — GP investment account cash flow</div>
-    <p style="font-size:12px;color:#6B6560;margin-bottom:.75rem">
-      Monthly deposits into the GP Investment Account, match payments flowing out to grandchild accounts, and the running balance.
-    </p>
-    <div class="legend">
-      <span><span class="lsq" style="background:var(--match-bg);border:1px solid #A8D5B5"></span>Match payout month</span>
-      <span><span class="lsq" style="background:var(--neg-bg);border:1px solid #E0B0B0"></span>Negative balance</span>
-    </div>
-    <div class="tbl-wrap" style="max-height:380px">
-      <table>
-        <thead><tr>
-          <th class="ctr">Mo.</th>
-          <th class="ctr">Date</th>
-          <th>GP deposit in</th>
-          <th>Match 1 out</th>
-          <th>Match 2 out</th>
-          <th>Total matches out</th>
-          <th>Net flow</th>
-          <th>Beg. balance</th>
-          <th class="ctr">End balance</th>
-        </tr></thead>
-        <tbody id="cf2-tbody"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
 
 <!-- ── GROWTH CHART ─────────────────────────────────────────────────────── -->
 <div id="panel-chart" class="panel">
@@ -518,6 +480,7 @@ function getP(){
   return{
     gpInit:+document.getElementById('sl-gpinit').value,
     gpMonth:+document.getElementById('sl-gpmonth').value,
+    gpYears:+document.getElementById('sl-gpyears').value,
     rate:+document.getElementById('sl-rate').value/100,
     years:+document.getElementById('sl-years').value,
     gcMonth:+document.getElementById('sl-gcmonth').value,
@@ -574,7 +537,7 @@ function projectGPAcct(p,gcRes){
   for(let mo=1;mo<=480;mo++){
     const d=addMonths(GP_START.y,GP_START.m,mo-1);
     const key=ym(d.y,d.m);
-    const dep=p.gpMonth;
+    const dep=mo<=p.gpYears*12?p.gpMonth:0;
     const out1=m1map[key]||0,out2=m2map[key]||0;
     const totalOut=out1+out2,net=dep-totalOut,begBal=bal;
     const eff=Math.max(begBal+net,0);
@@ -617,6 +580,7 @@ function update(){
   // Update display values
   document.getElementById('ov-gpinit').textContent=fmt$(p.gpInit);
   document.getElementById('ov-gpmonth').textContent=fmt$(p.gpMonth)+'/mo';
+  document.getElementById('ov-gpyears').textContent=p.gpYears+' yrs';
   document.getElementById('ov-rate').textContent=(p.rate*100).toFixed(1)+'%';
   document.getElementById('ov-years').textContent=p.years+' yrs';
   document.getElementById('ov-gcmonth').textContent=fmt$(p.gcMonth)+'/mo';
@@ -629,12 +593,10 @@ function update(){
 
   const gcRes=Array.from({length:N},(_,i)=>projectGC(p,i));
   const gpRows=projectGPAcct(p,gcRes);
-  const cf1Rows=buildCF1(p,gcRes);
 
   renderSummary(p,gcRes);
   renderChildButtons(p,gcRes);
   renderGPAcct(p,gpRows);
-  renderCF(p,cf1Rows,gpRows);
   if(document.getElementById('panel-child').classList.contains('active'))
     renderChildDetail(p,gcRes);
   if(document.getElementById('panel-chart').classList.contains('active'))
@@ -757,10 +719,11 @@ function renderGPAcct(p,rows){
   const lastBal=rows[rows.length-1]?.endBal??0;
 
   document.getElementById('gp-metrics').innerHTML=`
-    <div class="mc"><div class="mc-label">Total deposits in (40 yrs)</div><div class="mc-value">${fmt$(totalDep)}</div></div>
+    <div class="mc"><div class="mc-label">Total deposits in (${p.gpYears} yrs)</div><div class="mc-value">${fmt$(totalDep)}</div></div>
     <div class="mc gold"><div class="mc-label">Total matches paid out</div><div class="mc-value">${fmt$(totalOut)}</div></div>
     <div class="mc ${minBal<0?'warn':'accent'}"><div class="mc-label">Minimum balance reached</div><div class="mc-value">${fmt$(minBal)}</div><div class="mc-sub">${minBal<0?'⚠ external funding needed at this point':''}</div></div>
     <div class="mc accent"><div class="mc-label">Balance at year 40</div><div class="mc-value">${fmt$(lastBal)}</div></div>`;
+  document.getElementById('gp-yr40-text').innerHTML=`At year 40 this account holds <strong>${fmt$(lastBal)}</strong>${lastBal>0?' — a meaningful surplus beyond what was needed for the two match events':' (depleted)'}. ${lastBal>0?'Consider earmarking this surplus for <em>additional match rounds</em> for grandchildren who kept contributing longest, or a final lump-sum gift tied to continued participation milestones.':'If the account is depleted before all match events, revisit the contribution years or monthly deposit on the Assumptions tab.'}`;
 
   document.getElementById('gp-tbody').innerHTML=rows.map(row=>{
     const isM=row.out1>0||row.out2>0;
