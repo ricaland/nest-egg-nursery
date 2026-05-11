@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nest Egg Nursery — Grandchildren Investment Projector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+/* ── Reset & Base ─────────────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAF7F2;
+  --ink:#1C1917;
+  --sage:#5C7A5A;
+  --sage-light:#E8F0E7;
+  --gold:#B8860B;
+  --gold-light:#FDF6E3;
+  --blush:#E8D5C4;
+  --blush-deep:#C4956A;
+  --rust:#9C4A2B;
+  --sky:#2B5F8A;
+  --sky-light:#EAF2F8;
+  --border:#DDD8D0;
+  --match-bg:#D4EDDA;
+  --match-fg:#1D5C35;
+  --neg-bg:#FCE4E4;
+  --neg-fg:#8B1A1A;
+  --shadow:0 1px 3px rgba(28,25,23,.06),0 4px 16px rgba(28,25,23,.06);
+  --shadow-lg:0 8px 32px rgba(28,25,23,.10);
+  --radius:10px;
+  --radius-sm:6px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--cream);
+  color:var(--ink);
+  font-size:14px;
+  line-height:1.55;
+  min-height:100vh;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────── */
+header{
+  background:var(--ink);
+  padding:1.5rem 2rem 1.25rem;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+.logo{display:flex;align-items:center;gap:.75rem}
+.logo-icon{
+  width:38px;height:38px;background:var(--sage);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;
+}
+.logo h1{
+  font-family:'Playfair Display',serif;
+  font-size:22px;color:#FAF7F2;font-weight:400;letter-spacing:.01em;
+}
+.logo h1 em{color:var(--blush);font-style:italic}
+.header-pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;padding:3px 10px;border-radius:99px;
+  border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.65);
+}
+
+/* ── Nav tabs ─────────────────────────────────────────────────────────── */
+nav{
+  background:#fff;border-bottom:1px solid var(--border);
+  display:flex;overflow-x:auto;padding:0 1.5rem;gap:2px;
+  position:sticky;top:0;z-index:100;
+  box-shadow:0 1px 4px rgba(28,25,23,.05);
+}
+.nav-tab{
+  padding:.75rem 1.1rem;font-size:13px;font-weight:500;
+  color:#6B6560;border:none;background:none;cursor:pointer;
+  border-bottom:2px solid transparent;white-space:nowrap;
+  transition:color .15s,border-color .15s;
+}
+.nav-tab:hover{color:var(--ink)}
+.nav-tab.active{color:var(--sage);border-bottom-color:var(--sage)}
+
+/* ── Main layout ─────────────────────────────────────────────────────── */
+main{max-width:1280px;margin:0 auto;padding:1.75rem 1.5rem 3rem}
+.panel{display:none}.panel.active{display:block}
+
+/* ── Cards ──────────────────────────────────────────────────────────── */
+.card{
+  background:#fff;border:1px solid var(--border);
+  border-radius:var(--radius);padding:1.25rem 1.5rem;
+  box-shadow:var(--shadow);
+}
+.card + .card{margin-top:1rem}
+.card-title{
+  font-family:'Playfair Display',serif;
+  font-size:15px;font-weight:600;color:var(--ink);
+  margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem;
+}
+
+/* ── Metric cards ─────────────────────────────────────────────────────── */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:1.25rem}
+.mc{
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:.85rem 1.1rem;
+}
+.mc.accent{background:var(--sage-light);border-color:#B8CEB7}
+.mc.gold{background:var(--gold-light);border-color:#D4C07A}
+.mc.warn{background:var(--neg-bg);border-color:#E0B0B0}
+.mc-label{font-size:11px;color:#6B6560;margin-bottom:3px;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.mc-value{font-size:21px;font-weight:300;color:var(--ink);font-family:'Playfair Display',serif}
+.mc.accent .mc-value{color:var(--sage)}
+.mc.gold .mc-value{color:var(--gold)}
+.mc.warn .mc-value{color:var(--neg-fg)}
+.mc-sub{font-size:10px;color:#8A8480;margin-top:2px}
+
+/* ── Avg contribution banner ──────────────────────────────────────────── */
+.avg-banner{
+  background:linear-gradient(135deg,var(--sky) 0%,#1D4A70 100%);
+  border-radius:var(--radius);padding:1rem 1.5rem;
+  color:#fff;margin-bottom:1.25rem;
+  display:flex;align-items:center;gap:2rem;flex-wrap:wrap;
+}
+.avg-banner .label{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin-bottom:2px}
+.avg-banner .value{font-size:20px;font-family:'Playfair Display',serif;font-weight:600}
+.avg-banner .sep{width:1px;height:36px;background:rgba(255,255,255,.2);flex-shrink:0}
+
+/* ── Assumption controls ─────────────────────────────────────────────── */
+.assume-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:720px){.assume-grid{grid-template-columns:1fr}}
+.field-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.field-row label{font-size:12px;color:#5A5550;flex:1;min-width:0}
+.field-row input[type=range]{width:120px;accent-color:var(--sage)}
+.field-row .vo{font-size:13px;font-weight:500;min-width:72px;text-align:right;color:var(--ink)}
+.field-section{margin-bottom:.5rem}
+.field-section-title{
+  font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--sage);
+  font-weight:500;margin-bottom:.6rem;padding-bottom:4px;
+  border-bottom:1px solid var(--sage-light);
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────── */
+.tbl-wrap{overflow-x:auto;overflow-y:auto;border-radius:var(--radius-sm);border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{
+  position:sticky;top:0;
+  background:var(--ink);color:#FAF7F2;
+  padding:7px 10px;text-align:right;
+  font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;
+  white-space:nowrap;
+}
+thead th.left{text-align:left}
+thead th.ctr{text-align:center}
+tbody td{
+  padding:5px 10px;text-align:right;
+  border-bottom:1px solid #F0EDE8;color:var(--ink);
+}
+tbody td.ctr{text-align:center;color:#6B6560}
+tbody td.left{text-align:left}
+tbody tr:nth-child(even) td{background:#FDFCFA}
+tbody tr:hover td{background:var(--sage-light)}
+tbody tr.match-row td{background:var(--match-bg)!important;color:var(--match-fg);font-weight:500}
+tbody tr.init-row td{background:var(--gold-light)!important}
+tbody tr.neg-row td.bal{background:var(--neg-bg)!important;color:var(--neg-fg);font-weight:600}
+tfoot td{
+  padding:6px 10px;text-align:right;
+  background:var(--cream);border-top:2px solid var(--border);
+  font-weight:500;font-size:12px;
+}
+tfoot td.left{text-align:left}
+
+/* ── Child selector grid ──────────────────────────────────────────────── */
+.child-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:7px;margin-bottom:1.25rem}
+.child-btn{
+  padding:7px 10px;font-size:11px;font-family:'DM Sans',sans-serif;
+  border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:#fff;color:var(--ink);cursor:pointer;text-align:left;
+  transition:all .12s;line-height:1.3;
+}
+.child-btn:hover{border-color:var(--sage);background:var(--sage-light)}
+.child-btn.sel{border-color:var(--sage);background:var(--sage);color:#fff}
+.child-btn .cs{font-size:10px;display:block;margin-top:2px;opacity:.7}
+
+/* ── Legend ──────────────────────────────────────────────────────────── */
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#6B6560;margin-bottom:.75rem}
+.legend span{display:flex;align-items:center;gap:5px}
+.lsq{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── Misc ──────────────────────────────────────────────────────────── */
+.section-divider{
+  border:none;border-top:1px solid var(--border);margin:1.5rem 0;
+}
+.badge{
+  display:inline-block;font-size:10px;padding:1px 8px;border-radius:99px;font-weight:500;
+}
+.badge.green{background:var(--match-bg);color:var(--match-fg)}
+.badge.gold{background:var(--gold-light);color:var(--gold)}
+.badge.sky{background:var(--sky-light);color:var(--sky)}
+
+/* ── Footer ──────────────────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--border);margin-top:3rem;
+  padding:1.25rem 1.5rem;text-align:center;
+  font-size:11px;color:#8A8480;background:#fff;
+}
+
+/* ── Animations ──────────────────────────────────────────────────────── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.panel.active{animation:fadeUp .2s ease}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🪺</div>
+    <h1>Nest Egg <em>Nursery</em></h1>
+  </div>
+  <div class="header-pills">
+    <span class="pill">🧒 23 grandchildren</span>
+    <span class="pill">📅 Jun 2026 → 40 years</span>
+    <span class="pill">🎁 2 match events</span>
+  </div>
+</header>
+
+<nav id="main-nav">
+  <button class="nav-tab active" onclick="switchTab('summary',this)">Summary</button>
+  <button class="nav-tab" onclick="switchTab('assumptions',this)">Assumptions</button>
+  <button class="nav-tab" onclick="switchTab('child',this)">Individual accounts</button>
+  <button class="nav-tab" onclick="switchTab('gpacct',this)">GP investment account</button>
+  <button class="nav-tab" onclick="switchTab('cashflow',this)">GP contributions</button>
+  <button class="nav-tab" onclick="switchTab('chart',this)">Growth chart</button>
+</nav>
+
+<main>
+
+<!-- ── SUMMARY ─────────────────────────────────────────────────────────── -->
+<div id="panel-summary" class="panel active">
+  <div class="metric-grid" id="sum-metrics"></div>
+
+  <div class="avg-banner" id="avg-banner">
+    <div>
+      <div class="label">Average monthly contribution per account</div>
+      <div class="value" id="avg-total-val">—</div>
+    </div>
+    <div class="sep"></div>
+    <div><div class="label">GP amortized</div><div style="font-size:15px;font-weight:400" id="avg-gp-val">—</div></div>
+    <div><div class="label">GC monthly</div><div style="font-size:15px;font-weight:400" id="avg-gc-val">—</div></div>
+    <div><div class="label">Match amortized</div><div style="font-size:15px;font-weight:400" id="avg-match-val">—</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🌱 All 23 grandchild accounts</div>
+    <div class="tbl-wrap" style="max-height:420px">
+      <table>
+        <thead><tr>
+          <th class="ctr">#</th>
+          <th class="left">Name</th>
+          <th class="ctr">Account start</th>
+          <th>GP initial</th>
+          <th>GC total contrib.</th>
+          <th>Match 1</th>
+          <th>Match 2</th>
+          <th>Balance yr 5</th>
+          <th>Balance yr 10</th>
+          <th>Balance yr 20</th>
+          <th>Balance yr 40</th>
+        </tr></thead>
+        <tbody id="sum-tbody"></tbody>
+        <tfoot id="sum-tfoot"></tfoot>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── ASSUMPTIONS ─────────────────────────────────────────────────────── -->
+<div id="panel-assumptions" class="panel">
+  <div class="assume-grid">
+    <div class="card">
+      <div class="card-title">⚙️ Grandparent contributions</div>
+      <div class="field-section">
+        <div class="field-section-title">Funding</div>
+        <div class="field-row"><label>Initial GP deposit per GC account</label><input type="range" min="500" max="5000" step="100" id="sl-gpinit" value="1000" oninput="update()"><span class="vo" id="ov-gpinit">$1,000</span></div>
+        <div class="field-row"><label>GP Investment Acct monthly deposit</label><input type="range" min="500" max="5000" step="100" id="sl-gpmonth" value="1000" oninput="update()"><span class="vo" id="ov-gpmonth">$1,000/mo</span></div>
+        <div class="field-row"><label>Annual rate of return</label><input type="range" min="1" max="15" step="0.5" id="sl-rate" value="7" oninput="update()"><span class="vo" id="ov-rate">7.0%</span></div>
+        <div class="field-row"><label>Projection years (per account)</label><input type="range" min="10" max="50" step="1" id="sl-years" value="40" oninput="update()"><span class="vo" id="ov-years">40 yrs</span></div>
+      </div>
+      <div class="field-section">
+        <div class="field-section-title">Grandchild contributions</div>
+        <div class="field-row"><label>GC monthly contribution</label><input type="range" min="0" max="200" step="5" id="sl-gcmonth" value="20" oninput="update()"><span class="vo" id="ov-gcmonth">$20/mo</span></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card" style="margin-bottom:1rem">
+        <div class="card-title">🎁 Match event 1 <span class="badge green">month 30 · 2.5 yrs</span></div>
+        <div class="field-row"><label>Trigger month</label><input type="range" min="6" max="60" step="6" id="sl-m1mo" value="30" oninput="update()"><span class="vo" id="ov-m1mo">30</span></div>
+        <div class="field-row"><label>Match % of balance</label><input type="range" min="5" max="100" step="5" id="sl-m1pct" value="25" oninput="update()"><span class="vo" id="ov-m1pct">25%</span></div>
+        <div class="field-row"><label>Cap (max payout)</label><input type="range" min="100" max="5000" step="100" id="sl-m1cap" value="500" oninput="update()"><span class="vo" id="ov-m1cap">$500</span></div>
+        <p style="font-size:11px;color:#6B6560;margin-top:.5rem">Grandchild qualifies by contributing $20/mo — automatically met.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">🎁 Match event 2 <span class="badge green">month 60 · 5 yrs</span></div>
+        <div class="field-row"><label>Trigger month</label><input type="range" min="12" max="120" step="6" id="sl-m2mo" value="60" oninput="update()"><span class="vo" id="ov-m2mo">60</span></div>
+        <div class="field-row"><label>Match % of balance</label><input type="range" min="5" max="100" step="5" id="sl-m2pct" value="25" oninput="update()"><span class="vo" id="ov-m2pct">25%</span></div>
+        <div class="field-row"><label>Cap (max payout)</label><input type="range" min="200" max="10000" step="200" id="sl-m2cap" value="1000" oninput="update()"><span class="vo" id="ov-m2cap">$1,000</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── INDIVIDUAL ACCOUNTS ─────────────────────────────────────────────── -->
+<div id="panel-child" class="panel">
+  <div class="child-grid" id="child-btns"></div>
+
+  <div id="child-detail" style="display:none">
+    <div class="card" style="margin-bottom:1rem">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600" id="child-title"></div>
+          <div style="font-size:12px;color:#6B6560;margin-top:2px" id="child-subtitle"></div>
+        </div>
+        <div class="badge sky" id="child-start-badge"></div>
+      </div>
+      <div class="metric-grid" id="child-milestones"></div>
+
+      <div class="avg-banner" style="background:linear-gradient(135deg,var(--sage) 0%,#3D5C3B 100%);margin-top:.75rem">
+        <div>
+          <div class="label">Average monthly contribution — this account</div>
+          <div class="value" id="child-avg-total">—</div>
+        </div>
+        <div class="sep"></div>
+        <div><div class="label">GP amortized</div><div style="font-size:15px" id="child-avg-gp">—</div></div>
+        <div><div class="label">GC monthly</div><div style="font-size:15px" id="child-avg-gc">—</div></div>
+        <div><div class="label">Matches amortized</div><div style="font-size:15px" id="child-avg-match">—</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem">
+        <div class="card-title" style="margin:0">Month-by-month projection</div>
+        <div class="legend">
+          <span><span class="lsq" style="background:var(--match-bg);border:1px solid #A8D5B5"></span>Match event row</span>
+        </div>
+      </div>
+      <div class="tbl-wrap" style="max-height:440px">
+        <table>
+          <thead><tr>
+            <th class="ctr">Month</th>
+            <th class="ctr">Calendar date</th>
+            <th>GP initial</th>
+            <th>GC deposit</th>
+            <th>Match</th>
+            <th>Total deposit</th>
+            <th>Beg. balance</th>
+            <th>Growth</th>
+            <th>End balance</th>
+          </tr></thead>
+          <tbody id="child-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GP INVESTMENT ACCOUNT ───────────────────────────────────────────── -->
+<div id="panel-gpacct" class="panel">
+  <div class="metric-grid" id="gp-metrics"></div>
+
+  <div class="card">
+    <div class="card-title">🏦 GP investment account — monthly detail</div>
+    <p style="font-size:12px;color:#6B6560;margin-bottom:.75rem">
+      Funded with $1,000/month starting <strong>May 2028</strong> (after all 23 grandchild accounts are initially funded).
+      Match payments draw down this account. <span style="color:var(--neg-fg);font-weight:500">Red rows indicate a negative balance — additional funding would be needed.</span>
+    </p>
+    <div class="legend">
+      <span><span class="lsq" style="background:var(--match-bg);border:1px solid #A8D5B5"></span>Match payout month</span>
+      <span><span class="lsq" style="background:var(--neg-bg);border:1px solid #E0B0B0"></span>Negative balance</span>
+    </div>
+    <div class="tbl-wrap" style="max-height:480px">
+      <table>
+        <thead><tr>
+          <th class="ctr">Mo.</th>
+          <th class="ctr">Date</th>
+          <th>GP deposit in</th>
+          <th>Match 1 out</th>
+          <th>Match 2 out</th>
+          <th>Total out</th>
+          <th>Net flow</th>
+          <th>Beg. balance</th>
+          <th>Growth</th>
+          <th class="ctr">End balance</th>
+        </tr></thead>
+        <tbody id="gp-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── GP CONTRIBUTIONS / CASH FLOW ───────────────────────────────────── -->
+<div id="panel-cashflow" class="panel">
+  <div class="metric-grid" id="cf-metrics"></div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">💸 Section 1 — GP sourced account: initial GC deposits</div>
+    <p style="font-size:12px;color:#6B6560;margin-bottom:.75rem">
+      Shows only the months where a grandchild account is initially funded ($1,000 each, one per month Jun 2026 – Apr 2028),
+      plus the ongoing transfer into the GP Investment Account beginning May 2028.
+      The GP Investment Account funding is shown as an offsetting entry — it flows <em>into</em> that account, not out of the family.
+    </p>
+    <div class="legend">
+      <span><span class="lsq" style="background:var(--gold-light);border:1px solid #D4C07A"></span>GC initial deposit month</span>
+    </div>
+    <div class="tbl-wrap" style="max-height:340px">
+      <table>
+        <thead><tr>
+          <th class="ctr">Date</th>
+          <th>GC initial deposits out</th>
+          <th>GP inv. acct funding out</th>
+          <th>Total out</th>
+          <th>Offset: inv. acct in</th>
+          <th>Net GP sourced flow</th>
+          <th>Running total funded</th>
+        </tr></thead>
+        <tbody id="cf1-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🔄 Section 2 — GP investment account cash flow</div>
+    <p style="font-size:12px;color:#6B6560;margin-bottom:.75rem">
+      Monthly deposits into the GP Investment Account, match payments flowing out to grandchild accounts, and the running balance.
+    </p>
+    <div class="legend">
+      <span><span class="lsq" style="background:var(--match-bg);border:1px solid #A8D5B5"></span>Match payout month</span>
+      <span><span class="lsq" style="background:var(--neg-bg);border:1px solid #E0B0B0"></span>Negative balance</span>
+    </div>
+    <div class="tbl-wrap" style="max-height:380px">
+      <table>
+        <thead><tr>
+          <th class="ctr">Mo.</th>
+          <th class="ctr">Date</th>
+          <th>GP deposit in</th>
+          <th>Match 1 out</th>
+          <th>Match 2 out</th>
+          <th>Total matches out</th>
+          <th>Net flow</th>
+          <th>Beg. balance</th>
+          <th class="ctr">End balance</th>
+        </tr></thead>
+        <tbody id="cf2-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── GROWTH CHART ─────────────────────────────────────────────────────── -->
+<div id="panel-chart" class="panel">
+  <div class="card" style="margin-bottom:1rem">
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;font-size:13px">
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+        <input type="radio" name="cmode" value="all" checked onchange="renderChart()"> All 23 accounts
+      </label>
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+        <input type="radio" name="cmode" value="single" onchange="renderChart()"> Single account
+      </label>
+      <select id="chart-sel" style="font-size:12px;border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px 8px;background:#fff" onchange="renderChart()"></select>
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer;margin-left:.5rem">
+        <input type="checkbox" id="show-gp" onchange="renderChart()"> GP investment account
+      </label>
+      <label style="display:flex;align-items:center;gap:.4rem;cursor:pointer">
+        <input type="checkbox" id="show-contrib" onchange="renderChart()"> Contributions line
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <div class="legend" id="chart-legend"></div>
+    <div style="position:relative;width:100%;height:380px">
+      <canvas id="g-chart" role="img" aria-label="Line chart showing investment account growth over time"></canvas>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  Nest Egg Nursery — Investment projection tool for family planning purposes only. Not financial advice.
+  Projections assume a constant annual rate of return and do not account for taxes, inflation, or market volatility.
+</footer>
+
+<script>
+/* ── Constants ───────────────────────────────────────────────────────── */
+const MONTHS_EN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const N=23;
+const GC_STARTS=Array.from({length:N},(_,i)=>{
+  let mo=6+i,yr=2026+Math.floor((mo-1)/12);mo=((mo-1)%12)+1;return{y:yr,m:mo};
+});
+const GP_START={y:2028,m:5};
+
+/* ── State ───────────────────────────────────────────────────────────── */
+let selChild=0;
+let gChart=null;
+
+/* ── Utils ───────────────────────────────────────────────────────────── */
+function ym(y,m){return MONTHS_EN[m-1]+' '+y;}
+function addMonths(y,m,n){let t=(m-1)+n;return{y:y+Math.floor(t/12),m:(t%12)+1};}
+function fmt$(v){
+  if(v<0)return'('+('$'+Math.abs(Math.round(v)).toLocaleString())+')';
+  return'$'+Math.round(v).toLocaleString();
+}
+function fmtMini(v){return'$'+Math.round(v).toLocaleString();}
+
+/* ── Projections ──────────────────────────────────────────────────────── */
+function getP(){
+  return{
+    gpInit:+document.getElementById('sl-gpinit').value,
+    gpMonth:+document.getElementById('sl-gpmonth').value,
+    rate:+document.getElementById('sl-rate').value/100,
+    years:+document.getElementById('sl-years').value,
+    gcMonth:+document.getElementById('sl-gcmonth').value,
+    m1mo:+document.getElementById('sl-m1mo').value,
+    m1pct:+document.getElementById('sl-m1pct').value/100,
+    m1cap:+document.getElementById('sl-m1cap').value,
+    m2mo:+document.getElementById('sl-m2mo').value,
+    m2pct:+document.getElementById('sl-m2pct').value/100,
+    m2cap:+document.getElementById('sl-m2cap').value,
+  };
+}
+
+function projectGC(p,i){
+  const{y:sy,m:sm}=GC_STARTS[i];
+  const mRate=Math.pow(1+p.rate,1/12)-1;
+  const months=p.years*12;
+  let bal=0,cumGP=p.gpInit,cumGC=0,m1=0,m2=0;
+  const rows=[];
+  for(let mo=1;mo<=months;mo++){
+    const d=addMonths(sy,sm,mo-1);
+    const gpInit=mo===1?p.gpInit:0;
+    const gcDep=p.gcMonth;
+    let match=0;
+    if(mo===p.m1mo){match=Math.min(bal*p.m1pct,p.m1cap);m1=match;}
+    if(mo===p.m2mo){match=Math.min(bal*p.m2pct,p.m2cap);m2=match;}
+    const totalDep=gpInit+gcDep+match;
+    const begBal=bal;
+    const growth=(begBal+totalDep)*mRate;
+    bal=begBal+totalDep+growth;
+    cumGC+=gcDep;
+    if(mo>1)cumGP+=match;
+    rows.push({mo,y:d.y,m:d.m,gpInit,gcDep,match,totalDep,begBal,growth,endBal:bal});
+  }
+  return{rows,m1,m2,cumGP,cumGC,
+    bal5:rows[Math.min(59,rows.length-1)]?.endBal??0,
+    bal10:rows[Math.min(119,rows.length-1)]?.endBal??0,
+    bal20:rows[Math.min(239,rows.length-1)]?.endBal??0,
+    bal40:rows[Math.min(479,rows.length-1)]?.endBal??0};
+}
+
+function projectGPAcct(p,gcRes){
+  const m1map={},m2map={};
+  for(let i=0;i<N;i++){
+    const{y:sy,m:sm}=GC_STARTS[i];
+    const d1=addMonths(sy,sm,p.m1mo-1);
+    const d2=addMonths(sy,sm,p.m2mo-1);
+    const k1=ym(d1.y,d1.m),k2=ym(d2.y,d2.m);
+    m1map[k1]=(m1map[k1]||0)+gcRes[i].m1;
+    m2map[k2]=(m2map[k2]||0)+gcRes[i].m2;
+  }
+  const mRate=Math.pow(1+p.rate,1/12)-1;
+  let bal=0;
+  const rows=[];
+  for(let mo=1;mo<=480;mo++){
+    const d=addMonths(GP_START.y,GP_START.m,mo-1);
+    const key=ym(d.y,d.m);
+    const dep=p.gpMonth;
+    const out1=m1map[key]||0,out2=m2map[key]||0;
+    const totalOut=out1+out2,net=dep-totalOut,begBal=bal;
+    const eff=Math.max(begBal+net,0);
+    const growth=eff*mRate;
+    bal=begBal+net+growth;
+    rows.push({mo,y:d.y,m:d.m,dep,out1,out2,totalOut,net,begBal,growth,endBal:bal});
+  }
+  return rows;
+}
+
+function buildCF1(p,gcRes){
+  // Only include months with activity
+  const initMap={};
+  for(let i=0;i<N;i++){
+    const{y,m}=GC_STARTS[i];
+    const k=ym(y,m);
+    initMap[k]=(initMap[k]||[]).concat(i);
+  }
+  const rows=[];
+  let runFunded=0;
+  // Span Jun 2026 to Apr 2068
+  const totalMo=(2068-2026)*12+(4-6)+1;
+  for(let mo=1;mo<=totalMo;mo++){
+    const d=addMonths(2026,6,mo-1);
+    const key=ym(d.y,d.m);
+    const gcInits=initMap[key]||[];
+    const gcOut=gcInits.length*p.gpInit;
+    const isGPInv=(d.y>GP_START.y)||(d.y===GP_START.y&&d.m>=GP_START.m);
+    const gpInvOut=isGPInv?p.gpMonth:0;
+    if(gcOut===0&&gpInvOut===0)continue;
+    runFunded+=gcOut;
+    rows.push({y:d.y,m:d.m,gcOut,gpInvOut,totalOut:gcOut+gpInvOut,offset:gpInvOut,net:gcOut,runFunded,gcInits});
+  }
+  return rows;
+}
+
+/* ── Master update ───────────────────────────────────────────────────── */
+function update(){
+  const p=getP();
+  // Update display values
+  document.getElementById('ov-gpinit').textContent=fmt$(p.gpInit);
+  document.getElementById('ov-gpmonth').textContent=fmt$(p.gpMonth)+'/mo';
+  document.getElementById('ov-rate').textContent=(p.rate*100).toFixed(1)+'%';
+  document.getElementById('ov-years').textContent=p.years+' yrs';
+  document.getElementById('ov-gcmonth').textContent=fmt$(p.gcMonth)+'/mo';
+  document.getElementById('ov-m1mo').textContent=p.m1mo;
+  document.getElementById('ov-m1pct').textContent=(p.m1pct*100).toFixed(0)+'%';
+  document.getElementById('ov-m1cap').textContent=fmt$(p.m1cap);
+  document.getElementById('ov-m2mo').textContent=p.m2mo;
+  document.getElementById('ov-m2pct').textContent=(p.m2pct*100).toFixed(0)+'%';
+  document.getElementById('ov-m2cap').textContent=fmt$(p.m2cap);
+
+  const gcRes=Array.from({length:N},(_,i)=>projectGC(p,i));
+  const gpRows=projectGPAcct(p,gcRes);
+  const cf1Rows=buildCF1(p,gcRes);
+
+  renderSummary(p,gcRes);
+  renderChildButtons(p,gcRes);
+  renderGPAcct(p,gpRows);
+  renderCF(p,cf1Rows,gpRows);
+  if(document.getElementById('panel-child').classList.contains('active'))
+    renderChildDetail(p,gcRes);
+  if(document.getElementById('panel-chart').classList.contains('active'))
+    renderChart();
+
+  window._p=p;window._gcRes=gcRes;window._gpRows=gpRows;
+}
+
+/* ── Summary ─────────────────────────────────────────────────────────── */
+function renderSummary(p,gcRes){
+  const t40=gcRes.reduce((a,r)=>a+r.bal40,0);
+  const tGP=gcRes.reduce((a,r)=>a+r.cumGP,0);
+  const tGC=gcRes.reduce((a,r)=>a+r.cumGC,0);
+  const tM=gcRes.reduce((a,r)=>a+r.m1+r.m2,0);
+  const avg10=gcRes.reduce((a,r)=>a+r.bal10,0)/N;
+  const minBal=Math.min(...window._gpRows?.map(r=>r.endBal)??[0]);
+
+  document.getElementById('sum-metrics').innerHTML=`
+    <div class="mc accent"><div class="mc-label">Total 40yr value · all accounts</div><div class="mc-value">${fmt$(t40)}</div></div>
+    <div class="mc"><div class="mc-label">Total GP contributed</div><div class="mc-value">${fmt$(tGP)}</div><div class="mc-sub">incl. initial deposits + matches</div></div>
+    <div class="mc"><div class="mc-label">Total GC contributed</div><div class="mc-value">${fmt$(tGC)}</div></div>
+    <div class="mc gold"><div class="mc-label">Total matches paid</div><div class="mc-value">${fmt$(tM)}</div></div>
+    <div class="mc"><div class="mc-label">Avg. balance year 10</div><div class="mc-value">${fmt$(avg10)}</div><div class="mc-sub">per account</div></div>
+    <div class="mc ${minBal<0?'warn':''}"><div class="mc-label">GP inv. acct min balance</div><div class="mc-value">${fmt$(minBal)}</div><div class="mc-sub">${minBal<0?'⚠ external funding needed':''}</div></div>`;
+
+  const gpPerMo=p.gpInit/(p.years*12);
+  const matchPerMo=(gcRes.reduce((a,r)=>a+r.m1+r.m2,0)/N)/(p.years*12);
+  const avgTotal=gpPerMo+p.gcMonth+matchPerMo;
+  document.getElementById('avg-total-val').textContent=fmt$(Math.round(avgTotal))+'/mo';
+  document.getElementById('avg-gp-val').textContent=fmt$(Math.round(gpPerMo));
+  document.getElementById('avg-gc-val').textContent=fmt$(p.gcMonth);
+  document.getElementById('avg-match-val').textContent='~'+fmt$(Math.round(matchPerMo));
+
+  document.getElementById('sum-tbody').innerHTML=gcRes.map((r,i)=>{
+    const{y,m}=GC_STARTS[i];
+    return`<tr>
+      <td class="ctr">${i+1}</td>
+      <td class="left" style="font-weight:500">Grandchild ${i+1}</td>
+      <td class="ctr">${ym(y,m)}</td>
+      <td>${fmt$(r.cumGP)}</td>
+      <td>${fmt$(r.cumGC)}</td>
+      <td style="color:var(--match-fg)">${fmt$(r.m1)}</td>
+      <td style="color:var(--match-fg)">${fmt$(r.m2)}</td>
+      <td>${fmt$(r.bal5)}</td>
+      <td>${fmt$(r.bal10)}</td>
+      <td>${fmt$(r.bal20)}</td>
+      <td style="font-weight:500">${fmt$(r.bal40)}</td>
+    </tr>`;}).join('');
+
+  const cols=['cumGP','cumGC','m1','m2','bal5','bal10','bal20','bal40'];
+  const tots=cols.map(k=>gcRes.reduce((a,r)=>a+(r[k]??0),0));
+  document.getElementById('sum-tfoot').innerHTML=`<tr>
+    <td colspan="2" class="left" style="font-weight:600">Grand total — all 23 accounts</td>
+    <td class="left">—</td>
+    ${tots.map(v=>`<td style="font-weight:600">${fmt$(v)}</td>`).join('')}
+  </tr>`;
+}
+
+/* ── Child buttons ───────────────────────────────────────────────────── */
+function renderChildButtons(p,gcRes){
+  document.getElementById('child-btns').innerHTML=gcRes.map((r,i)=>{
+    const{y,m}=GC_STARTS[i];
+    return`<button class="child-btn ${i===selChild?'sel':''}" onclick="selectChild(${i})">
+      Grandchild ${i+1}
+      <span class="cs">${ym(y,m)} · ${fmt$(r.bal40)}</span>
+    </button>`;}).join('');
+  const sel=document.getElementById('chart-sel');
+  sel.innerHTML=gcRes.map((_,i)=>`<option value="${i}"${i===selChild?' selected':''}>Grandchild ${i+1}</option>`).join('');
+}
+
+function selectChild(i){
+  selChild=i;
+  document.getElementById('child-detail').style.display='block';
+  const p=getP();
+  const gcRes=Array.from({length:N},(_,j)=>projectGC(p,j));
+  renderChildButtons(p,gcRes);
+  renderChildDetail(p,gcRes);
+}
+
+function renderChildDetail(p,gcRes){
+  if(!gcRes)gcRes=Array.from({length:N},(_,i)=>projectGC(p,i));
+  const r=gcRes[selChild];
+  const{y:sy,m:sm}=GC_STARTS[selChild];
+  document.getElementById('child-title').textContent=`Grandchild ${selChild+1}`;
+  document.getElementById('child-subtitle').textContent=`Annual rate: ${(p.rate*100).toFixed(1)}%  ·  GP initial: ${fmt$(p.gpInit)}  ·  GC monthly: ${fmt$(p.gcMonth)}/mo`;
+  document.getElementById('child-start-badge').textContent=`Starts ${ym(sy,sm)}`;
+
+  document.getElementById('child-milestones').innerHTML=[
+    ['Year 5',r.bal5],['Year 10',r.bal10],['Year 20',r.bal20],['Year 40',r.bal40]
+  ].map(([l,v])=>`<div class="mc"><div class="mc-label">${l}</div><div class="mc-value">${fmt$(v)}</div></div>`).join('');
+
+  const gpPerMo=p.gpInit/(p.years*12);
+  const matchPerMo=(r.m1+r.m2)/(p.years*12);
+  const avgTotal=gpPerMo+p.gcMonth+matchPerMo;
+  document.getElementById('child-avg-total').textContent=fmt$(Math.round(avgTotal))+'/mo';
+  document.getElementById('child-avg-gp').textContent=fmt$(Math.round(gpPerMo));
+  document.getElementById('child-avg-gc').textContent=fmt$(p.gcMonth)+'/mo';
+  document.getElementById('child-avg-match').textContent='~'+fmt$(Math.round(matchPerMo));
+
+  document.getElementById('child-tbody').innerHTML=r.rows.map(row=>{
+    const isM=row.mo===p.m1mo||row.mo===p.m2mo;
+    return`<tr class="${isM?'match-row':''}">
+      <td class="ctr">${row.mo}</td>
+      <td class="ctr">${ym(row.y,row.m)}</td>
+      <td>${row.gpInit>0?fmt$(row.gpInit):'-'}</td>
+      <td>${fmt$(row.gcDep)}</td>
+      <td>${row.match>0?fmt$(row.match):'-'}</td>
+      <td>${fmt$(row.totalDep)}</td>
+      <td>${fmt$(row.begBal)}</td>
+      <td>${fmt$(row.growth)}</td>
+      <td style="font-weight:500">${fmt$(row.endBal)}</td>
+    </tr>`;}).join('');
+}
+
+/* ── GP Account ──────────────────────────────────────────────────────── */
+function renderGPAcct(p,rows){
+  const totalDep=rows.reduce((a,r)=>a+r.dep,0);
+  const totalOut=rows.reduce((a,r)=>a+r.totalOut,0);
+  const minBal=Math.min(...rows.map(r=>r.endBal));
+  const lastBal=rows[rows.length-1]?.endBal??0;
+
+  document.getElementById('gp-metrics').innerHTML=`
+    <div class="mc"><div class="mc-label">Total deposits in (40 yrs)</div><div class="mc-value">${fmt$(totalDep)}</div></div>
+    <div class="mc gold"><div class="mc-label">Total matches paid out</div><div class="mc-value">${fmt$(totalOut)}</div></div>
+    <div class="mc ${minBal<0?'warn':'accent'}"><div class="mc-label">Minimum balance reached</div><div class="mc-value">${fmt$(minBal)}</div><div class="mc-sub">${minBal<0?'⚠ external funding needed at this point':''}</div></div>
+    <div class="mc accent"><div class="mc-label">Balance at year 40</div><div class="mc-value">${fmt$(lastBal)}</div></div>`;
+
+  document.getElementById('gp-tbody').innerHTML=rows.map(row=>{
+    const isM=row.out1>0||row.out2>0;
+    const isNeg=row.endBal<0;
+    return`<tr class="${isM?'match-row':''}">
+      <td class="ctr">${row.mo}</td>
+      <td class="ctr">${ym(row.y,row.m)}</td>
+      <td style="color:var(--sage)">${fmt$(row.dep)}</td>
+      <td>${row.out1>0?fmt$(row.out1):'-'}</td>
+      <td>${row.out2>0?fmt$(row.out2):'-'}</td>
+      <td>${fmt$(row.totalOut)}</td>
+      <td>${fmt$(row.net)}</td>
+      <td>${fmt$(row.begBal)}</td>
+      <td>${fmt$(row.growth)}</td>
+      <td class="ctr ${isNeg?'bal':''}" style="${isNeg?'background:var(--neg-bg);color:var(--neg-fg);font-weight:600':''}">${fmt$(row.endBal)}</td>
+    </tr>`;}).join('');
+}
+
+/* ── Cash flow ───────────────────────────────────────────────────────── */
+function renderCF(p,cf1Rows,gpRows){
+  const totalInit=cf1Rows.reduce((a,r)=>a+r.gcOut,0);
+  const totalGPFunded=gpRows.reduce((a,r)=>a+r.dep,0);
+  const totalMatchOut=gpRows.reduce((a,r)=>a+r.totalOut,0);
+  const minGPBal=Math.min(...gpRows.map(r=>r.endBal));
+
+  document.getElementById('cf-metrics').innerHTML=`
+    <div class="mc"><div class="mc-label">Total GC initial deposits</div><div class="mc-value">${fmt$(totalInit)}</div><div class="mc-sub">23 × ${fmt$(p.gpInit)}</div></div>
+    <div class="mc"><div class="mc-label">Total GP inv. acct funded</div><div class="mc-value">${fmt$(totalGPFunded)}</div><div class="mc-sub">$1,000/mo × 40 yrs</div></div>
+    <div class="mc gold"><div class="mc-label">Total matches paid</div><div class="mc-value">${fmt$(totalMatchOut)}</div></div>
+    <div class="mc ${minGPBal<0?'warn':'accent'}"><div class="mc-label">GP acct min balance</div><div class="mc-value">${fmt$(minGPBal)}</div></div>`;
+
+  document.getElementById('cf1-tbody').innerHTML=cf1Rows.map(row=>`<tr class="${row.gcOut>0?'init-row':''}">
+    <td class="ctr">${ym(row.y,row.m)}</td>
+    <td>${row.gcOut>0?fmt$(row.gcOut):'-'}</td>
+    <td>${row.gpInvOut>0?fmt$(row.gpInvOut):'-'}</td>
+    <td>${fmt$(row.totalOut)}</td>
+    <td style="color:var(--sage)">${row.offset>0?fmt$(row.offset):'-'}</td>
+    <td style="font-weight:500">${row.net>0?fmt$(row.net):'-'}</td>
+    <td>${fmt$(row.runFunded)}</td>
+  </tr>`).join('');
+
+  document.getElementById('cf2-tbody').innerHTML=gpRows.map(row=>{
+    const isM=row.out1>0||row.out2>0;
+    const isNeg=row.endBal<0;
+    return`<tr class="${isM?'match-row':''}">
+      <td class="ctr">${row.mo}</td>
+      <td class="ctr">${ym(row.y,row.m)}</td>
+      <td style="color:var(--sage)">${fmt$(row.dep)}</td>
+      <td>${row.out1>0?fmt$(row.out1):'-'}</td>
+      <td>${row.out2>0?fmt$(row.out2):'-'}</td>
+      <td>${fmt$(row.totalOut)}</td>
+      <td>${fmt$(row.net)}</td>
+      <td>${fmt$(row.begBal)}</td>
+      <td class="ctr" style="${isNeg?'background:var(--neg-bg);color:var(--neg-fg);font-weight:600':''}">${fmt$(row.endBal)}</td>
+    </tr>`;}).join('');
+}
+
+/* ── Chart ───────────────────────────────────────────────────────────── */
+function renderChart(){
+  const p=window._p||getP();
+  const gcRes=window._gcRes||Array.from({length:N},(_,i)=>projectGC(p,i));
+  const gpRows=window._gpRows||projectGPAcct(p,gcRes);
+  const mode=document.querySelector('input[name="cmode"]:checked').value;
+  const showGP=document.getElementById('show-gp').checked;
+  const showContrib=document.getElementById('show-contrib').checked;
+  const childIdx=+document.getElementById('chart-sel').value;
+
+  // Palette: earthy family of distinct hues
+  const colors=['#5C7A5A','#9C4A2B','#2B5F8A','#B8860B','#7A3B5C','#3B6B7A','#6B5C3B','#4A6B9C','#7A5C9C','#9C7A3B','#3B9C7A','#9C3B5C','#5C9C3B','#3B5C9C','#9C5C3B','#3B9C5C','#9C3B9C','#5C3B9C','#9C9C3B','#3B9C9C','#9C6B3B','#3B6B9C','#6B9C3B'];
+
+  let datasets=[],labels=[];
+
+  if(mode==='all'){
+    labels=Array.from({length:p.years},(_,i)=>(2026+i).toString());
+    gcRes.forEach((r,i)=>{
+      const data=Array.from({length:p.years},(_,yi)=>Math.round(r.rows[Math.min(yi*12+11,r.rows.length-1)]?.endBal??0));
+      datasets.push({label:`GC ${i+1}`,data,borderColor:colors[i],backgroundColor:'transparent',borderWidth:1.5,pointRadius:0,tension:0.4});
+    });
+    document.getElementById('chart-legend').innerHTML=gcRes.map((_,i)=>`<span><span class="lsq" style="background:${colors[i]}"></span>GC ${i+1}</span>`).join('');
+  } else {
+    const r=gcRes[childIdx];
+    labels=r.rows.filter((_,i)=>(i+1)%12===0).map(rr=>ym(rr.y,rr.m));
+    const balData=r.rows.filter((_,i)=>(i+1)%12===0).map(rr=>Math.round(rr.endBal));
+    datasets.push({label:`GC ${childIdx+1} balance`,data:balData,borderColor:colors[childIdx],backgroundColor:colors[childIdx]+'18',fill:true,borderWidth:2,pointRadius:0,tension:0.4});
+    if(showContrib){
+      let cum=0;
+      const cData=r.rows.filter((_,i)=>(i+1)%12===0).map(rr=>{cum+=rr.totalDep;return Math.round(cum);});
+      datasets.push({label:'Cumul. contributions',data:cData,borderColor:'#B8860B',backgroundColor:'transparent',borderWidth:1.5,borderDash:[5,4],pointRadius:0,tension:0.4});
+    }
+    document.getElementById('chart-legend').innerHTML=`<span><span class="lsq" style="background:${colors[childIdx]}"></span>GC ${childIdx+1} balance</span>${showContrib?'<span><span class="lsq" style="background:#B8860B"></span>Contributions</span>':''}`;
+  }
+
+  if(showGP){
+    const gpLabels=gpRows.filter((_,i)=>(i+1)%12===0).map(r=>ym(r.y,r.m));
+    const gpData=gpRows.filter((_,i)=>(i+1)%12===0).map(r=>Math.round(r.endBal));
+    if(mode==='all'){
+      // Overlay GP on the same year axis — offset since it starts 2028
+      const gpByYear={};
+      gpRows.filter((_,i)=>(i+1)%12===0).forEach(r=>{gpByYear[r.y]=Math.round(r.endBal);});
+      const gpAligned=Array.from({length:p.years},(_,i)=>gpByYear[2026+i]??null);
+      datasets.push({label:'GP inv. account',data:gpAligned,borderColor:'#1C1917',backgroundColor:'transparent',borderWidth:2,borderDash:[7,4],pointRadius:0,tension:0.4});
+    } else {
+      datasets.push({label:'GP inv. account',data:gpData,borderColor:'#1C1917',backgroundColor:'transparent',borderWidth:2,borderDash:[7,4],pointRadius:0,tension:0.4,xAxisID:'x'});
+    }
+    document.getElementById('chart-legend').innerHTML+=`<span><span class="lsq" style="background:#1C1917"></span>GP inv. account</span>`;
+  }
+
+  if(gChart)gChart.destroy();
+  gChart=new Chart(document.getElementById('g-chart'),{
+    type:'line',data:{labels,datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${fmt$(ctx.raw)}`}}
+      },
+      scales:{
+        x:{grid:{color:'rgba(28,25,23,.05)'},ticks:{color:'#6B6560',font:{size:10,family:'DM Sans'},maxTicksLimit:12}},
+        y:{grid:{color:'rgba(28,25,23,.05)'},ticks:{color:'#6B6560',font:{size:10,family:'DM Sans'},callback:v=>'$'+Math.round(v).toLocaleString()}}
+      }
+    }
+  });
+}
+
+/* ── Tab switching ───────────────────────────────────────────────────── */
+function switchTab(tab,btn){
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+tab).classList.add('active');
+  if(tab==='chart')renderChart();
+  if(tab==='child'&&window._gcRes)renderChildDetail(window._p,window._gcRes);
+}
+
+/* ── Boot ────────────────────────────────────────────────────────────── */
+update();
+</script>
+</body>
+</html>
