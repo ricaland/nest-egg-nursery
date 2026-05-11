@@ -612,15 +612,12 @@ function renderSummary(p,gcRes){
   const tGC=gcRes.reduce((a,r)=>a+r.cumGC,0);
   const tM=gcRes.reduce((a,r)=>a+r.m1+r.m2,0);
   const avg10=gcRes.reduce((a,r)=>a+r.bal10,0)/N;
-  const minBal=Math.min(...window._gpRows?.map(r=>r.endBal)??[0]);
-
   document.getElementById('sum-metrics').innerHTML=`
     <div class="mc accent"><div class="mc-label">Total 40yr value · all accounts</div><div class="mc-value">${fmt$(t40)}</div></div>
     <div class="mc"><div class="mc-label">Total GP contributed</div><div class="mc-value">${fmt$(tGP)}</div><div class="mc-sub">incl. initial deposits + matches</div></div>
     <div class="mc"><div class="mc-label">Total GC contributed</div><div class="mc-value">${fmt$(tGC)}</div></div>
     <div class="mc gold"><div class="mc-label">Total matches paid</div><div class="mc-value">${fmt$(tM)}</div></div>
-    <div class="mc"><div class="mc-label">Avg. balance year 10</div><div class="mc-value">${fmt$(avg10)}</div><div class="mc-sub">per account</div></div>
-    <div class="mc ${minBal<0?'warn':''}"><div class="mc-label">GP inv. acct min balance</div><div class="mc-value">${fmt$(minBal)}</div><div class="mc-sub">${minBal<0?'⚠ external funding needed':''}</div></div>`;
+    <div class="mc"><div class="mc-label">Avg. balance year 10</div><div class="mc-value">${fmt$(avg10)}</div><div class="mc-sub">per account</div></div>`;
 
   const gpPerMo=p.gpInit/(p.years*12);
   const matchPerMo=(gcRes.reduce((a,r)=>a+r.m1+r.m2,0)/N)/(p.years*12);
