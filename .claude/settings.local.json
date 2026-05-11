@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"c:\\\\Projects\\\\nest-egg-nursery\" -Recurse -Include \"*.tsx\", \"*.ts\", \"*.js\", \"*.jsx\")",
+      "Bash(Select-Object -ExpandProperty FullName)"
+    ]
+  }
+}

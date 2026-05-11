@@ -50,11 +50,12 @@ Grandchild qualifies for both matches automatically because they contribute $20/
 ### GP Investment Account
 
 - Funded with **$1,000/month starting May 2028** (the month after GC 23 is initially funded in April 2028)
+- GP deposits run for `p.gpYears` years (default **15 years**, adjustable via `sl-gpyears`); after that the account stops receiving deposits but continues to grow and pay out matches
 - Earns the same rate of return as GC accounts
 - **Match payments flow OUT of this account** into each GC account at their respective match months
 - The account **can go negative** — a negative balance signals the need for additional external funding
 - Growth is only applied to positive balances: `Math.max(begBal + net, 0) * mRate`
-- Runs for 40 years (480 months) from May 2028
+- The account row array always spans 480 months (40 years) regardless of contribution duration, so all match events are captured
 
 ---
 
@@ -73,14 +74,12 @@ const GP_START = { y: 2028, m: 5 };   // GP Investment Account start
 |----------|-------------|
 | `getP()` | Reads all slider values, returns a params object `p` |
 | `projectGC(p, i)` | Projects one grandchild account; returns rows + summary stats |
-| `projectGPAcct(p, gcRes)` | Projects the GP Investment Account; pulls match amounts from `gcRes` |
-| `buildCF1(p, gcRes)` | Builds Section 1 of the cash flow tab (only months with activity) |
+| `projectGPAcct(p, gcRes)` | Projects the GP Investment Account; pulls match amounts from `gcRes`; deposits stop after `p.gpYears * 12` months |
 | `update()` | Master function — called on every slider change; runs all projections and re-renders every visible panel |
 | `renderSummary(p, gcRes)` | Populates the Summary tab |
 | `renderChildButtons(p, gcRes)` | Renders the 23 child selector buttons |
 | `renderChildDetail(p, gcRes)` | Populates the Individual Accounts tab for `selChild` |
-| `renderGPAcct(p, rows)` | Populates the GP Investment Account tab |
-| `renderCF(p, cf1Rows, gpRows)` | Populates both sections of the GP Contributions tab |
+| `renderGPAcct(p, rows)` | Populates the GP Investment Account tab; also updates the year-40 callout text dynamically |
 | `renderChart()` | Renders the Chart.js line chart |
 | `switchTab(tab, btn)` | Shows/hides panels, triggers chart render if needed |
 
@@ -98,6 +97,7 @@ let gChart      // Chart.js instance (destroyed and recreated on each render)
 {
   gpInit,    // GP initial deposit per GC account ($)
   gpMonth,   // GP Investment Account monthly deposit ($)
+  gpYears,   // how many years GP contributes to the inv. account (default 15)
   rate,      // annual rate of return (decimal, e.g. 0.07)
   years,     // projection length in years
   gcMonth,   // GC monthly contribution ($)
@@ -147,10 +147,9 @@ let gChart      // Chart.js instance (destroyed and recreated on each render)
 | Panel ID | Nav tab label | Contents |
 |----------|--------------|----------|
 | `panel-summary` | Summary | Metric grid, avg-contribution banner, full 23-row table |
-| `panel-assumptions` | Assumptions | All sliders (GP contributions, GC contributions, match events) |
+| `panel-assumptions` | Assumptions | All sliders (GP contributions, GP inv. acct contribution years, GC contributions, match events) |
 | `panel-child` | Individual accounts | Child selector buttons + detail card + month-by-month table |
-| `panel-gpacct` | GP investment account | Metric grid + full monthly detail table |
-| `panel-cashflow` | GP contributions | Section 1 (initial deposits) + Section 2 (GP inv. acct flow) |
+| `panel-gpacct` | GP investment account | Metric grid + two callout banners (funding sequence, year-40 distribution) + full monthly detail table |
 | `panel-chart` | Growth chart | Mode toggles + Chart.js canvas |
 
 Only one panel is visible at a time (`display:block` via `.active` class). Tab switching is handled by `switchTab(tab, btn)`.
@@ -206,10 +205,11 @@ All colors are CSS custom properties on `:root`. Do not hardcode hex values in n
 4. Call it from `update()` and inside `switchTab` if needed
 
 ### When changing financial logic
-- All projection logic lives in `projectGC`, `projectGPAcct`, and `buildCF1`
+- All projection logic lives in `projectGC` and `projectGPAcct`
 - `update()` is the single trigger point — it calls all projections and renders
 - If you change what a projection function returns, update every `renderX` function that consumes it
 - Match eligibility check: `gcMonth > 0` (always true with default $20/mo — no separate flag needed)
+- GP deposit cutoff: `mo <= p.gpYears * 12` inside `projectGPAcct`; rows after cutoff have `dep = 0` but the account still accrues growth and pays matches
 
 ### Formatting helpers
 ```js

@@ -717,11 +717,14 @@ function renderGPAcct(p,rows){
   const totalOut=rows.reduce((a,r)=>a+r.totalOut,0);
   const minBal=Math.min(...rows.map(r=>r.endBal));
   const lastBal=rows[rows.length-1]?.endBal??0;
+  const termRow=rows.find(r=>r.mo===p.gpYears*12)??rows[rows.length-1];
+  const termBal=termRow?.endBal??0;
 
   document.getElementById('gp-metrics').innerHTML=`
     <div class="mc"><div class="mc-label">Total deposits in (${p.gpYears} yrs)</div><div class="mc-value">${fmt$(totalDep)}</div></div>
     <div class="mc gold"><div class="mc-label">Total matches paid out</div><div class="mc-value">${fmt$(totalOut)}</div></div>
     <div class="mc ${minBal<0?'warn':'accent'}"><div class="mc-label">Minimum balance reached</div><div class="mc-value">${fmt$(minBal)}</div><div class="mc-sub">${minBal<0?'⚠ external funding needed at this point':''}</div></div>
+    <div class="mc accent"><div class="mc-label">Balance at end of GP deposits (yr ${p.gpYears})</div><div class="mc-value">${fmt$(termBal)}</div></div>
     <div class="mc accent"><div class="mc-label">Balance at year 40</div><div class="mc-value">${fmt$(lastBal)}</div></div>`;
   document.getElementById('gp-yr40-text').innerHTML=`At year 40 this account holds <strong>${fmt$(lastBal)}</strong>${lastBal>0?' — a meaningful surplus beyond what was needed for the two match events':' (depleted)'}. ${lastBal>0?'Consider earmarking this surplus for <em>additional match rounds</em> for grandchildren who kept contributing longest, or a final lump-sum gift tied to continued participation milestones.':'If the account is depleted before all match events, revisit the contribution years or monthly deposit on the Assumptions tab.'}`;
 
